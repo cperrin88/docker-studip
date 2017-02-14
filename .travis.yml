@@ -4,14 +4,15 @@ language: bash
 service: docker
 
 env:
-  - VERSION=3.3
-  - VERSION=3.3.4
-  - VERSION=3.4.3
-  - VERSION=3.5
+  - VERSION=3.3 TAG=3.3
+  - VERSION=3.3.4 TAG=3.3.4
+  - VERSION=3.4.3 TAG=3.4.3
+  - VERSION=3.5 TAG=3.5
+  - VERSION=3.5 TAG=latest
 
-before_install:
-  - docker build -t $DOCKER_USERNAME/studip:$VERSION $VERSION
+script:
+  - docker build -t $DOCKER_USERNAME/studip:$TAG $VERSION
 
 after_script:
   - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-  - docker push $DOCKER_USERNAME/studip:$VERSION
+  - docker push $DOCKER_USERNAME/studip:$TAG

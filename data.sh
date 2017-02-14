@@ -1,5 +1,3 @@
-#!/bin/bash
-
 declare -A sha1_hashes=(
   [3.3]='97fbac00f6a02570d93e902b06ddfb03698baa39'
   [3.3.4]='bde8572b2f5570ca074035d74b41e921779d0265'
