@@ -1,14 +1,12 @@
-sudo: required
-
 language: bash
-
-service:
-  - docker
+service: docker
 
 env:
 %%ENVS%%
 
-script:
+before_install:
   docker build -t $DOCKER_USERNAME/studip:$VERSION $VERSION
+  
+after_script
   docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   docker push $DOCKER_USERNAME/studip:$VERSION

@@ -1,3 +1,3 @@
 # Docker StudIP
 
-This project aims to brint [StudIP](http://www.studip.de) to Docker
+This project aims to bring [StudIP](http://www.studip.de) to Docker
