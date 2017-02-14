@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+if [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]
+then
+  sed -i "s/\$DB_STUDIP_HOST = .*/\$DB_STUDIP_HOST = \"$MYSQL_PORT_3306_TCP_ADDR\";/g" /usr/local/studip/config/config_local.inc.php
+fi
+
+if [ -n "$STUDIP_DB_USER" ]
+then
+  sed -i "s/\$DB_STUDIP_USER = .*/\$DB_STUDIP_USER = \"$STUDIP_DB_USER\";/g" /usr/local/studip/config/config_local.inc.php
+fi
+
+if [ -n "$STUDIP_DB_PASSWORD" ]
+then
+  sed -i "s/\$DB_STUDIP_PASSWORD = .*/\$DB_STUDIP_PASSWORD = \"$STUDIP_DB_PASSWORD\";/g" /usr/local/studip/config/config_local.inc.php
+fi
+
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+	set -- apache2-foreground "$@"
+fi
+
+exec "$@"
