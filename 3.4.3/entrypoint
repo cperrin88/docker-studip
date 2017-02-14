@@ -1,20 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 set -e
+
+if [ -z "$MYSQL_PORT_3306_TCP_ADDR" ] || [ -z "$STUDIP_CONF_DB_STUDIP_PASSWORD" ] || [ -z "$STUDIP_CONF_DB_STUDIP_USER" ]
+then
+  echo "Error: You have to set at least the MYSQL_PORT_3306_TCP_ADDR, STUDIP_CONF_DB_STUDIP_PASSWORD and STUDIP_CONF_DB_STUDIP_USER to start"
+  exit 1
+fi
+
+LOCAL_CONF_FILE=/usr/local/studip/config/config_local.inc.php
 
 if [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]
 then
-  sed -i "s/\$DB_STUDIP_HOST = .*/\$DB_STUDIP_HOST = \"$MYSQL_PORT_3306_TCP_ADDR\";/g" /usr/local/studip/config/config_local.inc.php
+  sed -i "s/\$DB_STUDIP_HOST = .*/\$DB_STUDIP_HOST = \"$MYSQL_PORT_3306_TCP_ADDR\";/g" $LOCAL_CONF_FILE
 fi
 
-if [ -n "$STUDIP_DB_USER" ]
-then
-  sed -i "s/\$DB_STUDIP_USER = .*/\$DB_STUDIP_USER = \"$STUDIP_DB_USER\";/g" /usr/local/studip/config/config_local.inc.php
-fi
+#Interpret all vars starting with $prefix as variables in $LOCAL_CONF_FILE and replace them
+prefix="STUDIP_CONF"
 
-if [ -n "$STUDIP_DB_PASSWORD" ]
-then
-  sed -i "s/\$DB_STUDIP_PASSWORD = .*/\$DB_STUDIP_PASSWORD = \"$STUDIP_DB_PASSWORD\";/g" /usr/local/studip/config/config_local.inc.php
-fi
+eval 'vars=(${!'"$prefix"'@})'
+
+for var in ${vars[@]}; do
+  var_val=${!var}
+  var_name=${var#"$prefix"_}
+  if $(grep -q "$var_name" "$LOCAL_CONF_FILE")
+  then
+    sed -i "s/\$$var_name = .*/\$$var_name = \"$var_val\";/g" $LOCAL_CONF_FILE
+  else
+    echo '\$$var_name = "$var_val"' >> $LOCAL_CONF_FILE
+  fi
+done
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
