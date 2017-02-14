@@ -1,17 +1,29 @@
 #!/bin/bash
 set -e
 
-if [ -z "$MYSQL_PORT_3306_TCP_ADDR" ] || [ -z "$STUDIP_CONF_DB_STUDIP_PASSWORD" ] || [ -z "$STUDIP_CONF_DB_STUDIP_USER" ]
-then
-  echo "Error: You have to set at least the MYSQL_PORT_3306_TCP_ADDR, STUDIP_CONF_DB_STUDIP_PASSWORD and STUDIP_CONF_DB_STUDIP_USER to start"
-  exit 1
-fi
-
 LOCAL_CONF_FILE=/usr/local/studip/config/config_local.inc.php
 
-if [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]
-then
-  sed -i "s/\$DB_STUDIP_HOST = .*/\$DB_STUDIP_HOST = \"$MYSQL_PORT_3306_TCP_ADDR\";/g" $LOCAL_CONF_FILE
+if [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]; then
+  export STUDIP_CONF_DB_STUDIP_HOST="$MYSQL_PORT_3306_TCP_ADDR"
+fi
+
+if [ -n "$MYSQL_ENV_MYSQL_USER" ]; then
+  export STUDIP_CONF_DB_STUDIP_USER="$MYSQL_ENV_MYSQL_USER"
+fi
+
+if [ -n "$MYSQL_ENV_MYSQL_PASSWORD" ]; then
+  export STUDIP_CONF_DB_STUDIP_PASSWORD="$MYSQL_ENV_MYSQL_PASSWORD"
+fi
+
+if [ -n "$MYSQL_ENV_MYSQL_DATABASE" ];  then
+  export STUDIP_CONF_DB_STUDIP_DATABASE="$MYSQL_ENV_MYSQL_DATABASE"
+fi
+
+if ([ -z "$STUDIP_CONF_DB_STUDIP_HOST" ] || \
+   [ -z "$STUDIP_CONF_DB_STUDIP_PASSWORD" ] || \
+   [ -z "$STUDIP_CONF_DB_STUDIP_USER" ]); then
+  echo "Error: You have to set at least the STUDIP_CONF_DB_STUDIP_HOST, STUDIP_CONF_DB_STUDIP_PASSWORD and STUDIP_CONF_DB_STUDIP_USER to start"
+  exit 1
 fi
 
 #Interpret all vars starting with $prefix as variables in $LOCAL_CONF_FILE and replace them
@@ -22,13 +34,20 @@ eval 'vars=(${!'"$prefix"'@})'
 for var in ${vars[@]}; do
   var_val=${!var}
   var_name=${var#"$prefix"_}
-  if $(grep -q "$var_name" "$LOCAL_CONF_FILE")
-  then
+  if $(grep -q "$var_name" "$LOCAL_CONF_FILE"); then
     sed -i "s/\$$var_name = .*/\$$var_name = \"$var_val\";/g" $LOCAL_CONF_FILE
   else
     echo '\$$var_name = "$var_val"' >> $LOCAL_CONF_FILE
   fi
 done
+
+if [ "$1" == "initdb" ]; then
+	mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip.sql
+  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_default_data.sql
+  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_root_user.sql
+  exit 0
+fi
+
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then

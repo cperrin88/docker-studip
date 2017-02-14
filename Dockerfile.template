@@ -16,7 +16,8 @@ RUN apt-get update && \
                           libcurl4-openssl-dev \
                           libxml2-dev \
                           libldap2-dev \
-                          libldb-dev && \
+                          libldb-dev \
+                          mysql-client && \
     apt-get clean && \
     rm --recursive /var/lib/apt/lists/*
 
