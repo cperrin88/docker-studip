@@ -22,7 +22,7 @@ for version in "${versions[@]}"; do
     -e 's!%%STUDIP_DOWNLOAD_URL%%!'"${download_urls[$version]}"'!' \
     -e 's!%%STUDIP_ARCHIVE_HASH_SHA1%%!'"${sha1_hashes[$version]}"'!' \
     "$version/Dockerfile"
-  envs+="  - VERSION=$version\n"
+  envs+="\n  - VERSION=$version"
 done
 
 cp --force template/travis.yml.template ./.travis.yml
