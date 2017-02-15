@@ -18,9 +18,9 @@ for version in "${versions[@]}"; do
   cp --force entrypoint "$version/entrypoint"
   sed -ri \
     -e 's!%%STUDIP_VERSION%%!'"$version"'!' \
-    -e 's!%%STUDIP_PHP_VERSION%%!'"${php_versions[$version]}"'!' \
+    -e 's!%%STUDIP_PHP_VERSION%%!'"${php_versions[$version]:-5}"'!' \
     -e 's!%%STUDIP_DOWNLOAD_URL%%!'"${download_urls[$version]}"'!' \
-    -e 's!%%STUDIP_ARCHIVE_HASH_SHA1%%!'"${sha1_hashes[$version]}"'!' \
+    -e 's!%%STUDIP_ARCHIVE_HASH_SHA1%%!'"${sha1_hashes[$version]:-''}"'!' \
     "$version/Dockerfile"
   envs+="\n  - VERSION=$version TAG=$version"
 done

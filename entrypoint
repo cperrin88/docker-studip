@@ -3,27 +3,20 @@ set -e
 
 LOCAL_CONF_FILE=/usr/local/studip/config/config_local.inc.php
 
-if [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]; then
+if [ -z "$STUDIP_CONF_DB_STUDIP_HOST"] && [ -n "$MYSQL_PORT_3306_TCP_ADDR" ]; then
   export STUDIP_CONF_DB_STUDIP_HOST="$MYSQL_PORT_3306_TCP_ADDR"
 fi
 
-if [ -n "$MYSQL_ENV_MYSQL_USER" ]; then
+if [ -z "$STUDIP_CONF_DB_STUDIP_USER"] && [ -n "$MYSQL_ENV_MYSQL_USER" ]; then
   export STUDIP_CONF_DB_STUDIP_USER="$MYSQL_ENV_MYSQL_USER"
 fi
 
-if [ -n "$MYSQL_ENV_MYSQL_PASSWORD" ]; then
+if [ -z "$STUDIP_CONF_DB_STUDIP_PASSWORD"] && [ -n "$MYSQL_ENV_MYSQL_PASSWORD" ]; then
   export STUDIP_CONF_DB_STUDIP_PASSWORD="$MYSQL_ENV_MYSQL_PASSWORD"
 fi
 
-if [ -n "$MYSQL_ENV_MYSQL_DATABASE" ];  then
+if [ -z "$STUDIP_CONF_DB_STUDIP_DATABASE"] && [ -n "$MYSQL_ENV_MYSQL_DATABASE" ];  then
   export STUDIP_CONF_DB_STUDIP_DATABASE="$MYSQL_ENV_MYSQL_DATABASE"
-fi
-
-if ([ -z "$STUDIP_CONF_DB_STUDIP_HOST" ] || \
-   [ -z "$STUDIP_CONF_DB_STUDIP_PASSWORD" ] || \
-   [ -z "$STUDIP_CONF_DB_STUDIP_USER" ]); then
-  echo "Error: You have to set at least the STUDIP_CONF_DB_STUDIP_HOST, STUDIP_CONF_DB_STUDIP_PASSWORD and STUDIP_CONF_DB_STUDIP_USER to start"
-  exit 1
 fi
 
 #Interpret all vars starting with $prefix as variables in $LOCAL_CONF_FILE and replace them
@@ -42,7 +35,7 @@ for var in ${vars[@]}; do
 done
 
 if [ "$1" == "initdb" ]; then
-	mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip.sql
+  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip.sql
   mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_default_data.sql
   mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_root_user.sql
   /usr/local/studip/cli/migrate.php
