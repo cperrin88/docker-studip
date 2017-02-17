@@ -35,9 +35,9 @@ for var in ${vars[@]}; do
 done
 
 if [ "$1" == "initdb" ]; then
-  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip.sql
-  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_default_data.sql
-  mysql --host="$MYSQL_PORT_3306_TCP_ADDR" --user="$MYSQL_ENV_MYSQL_USER" --password="$MYSQL_ENV_MYSQL_PASSWORD" "$MYSQL_ENV_MYSQL_DATABASE" < /usr/local/studip/db/studip_root_user.sql
+  mysql --host="$STUDIP_CONF_DB_STUDIP_HOST" --user="$STUDIP_CONF_DB_STUDIP_USER" --password="$STUDIP_CONF_DB_STUDIP_PASSWORD" "$STUDIP_CONF_DB_STUDIP_DATABASE" < /usr/local/studip/db/studip.sql
+  mysql --host="$STUDIP_CONF_DB_STUDIP_HOST" --user="$STUDIP_CONF_DB_STUDIP_USER" --password="$STUDIP_CONF_DB_STUDIP_PASSWORD" "$STUDIP_CONF_DB_STUDIP_DATABASE" < /usr/local/studip/db/studip_default_data.sql
+  mysql --host="$STUDIP_CONF_DB_STUDIP_HOST" --user="$STUDIP_CONF_DB_STUDIP_USER" --password="$STUDIP_CONF_DB_STUDIP_PASSWORD" "$STUDIP_CONF_DB_STUDIP_DATABASE" < /usr/local/studip/db/studip_root_user.sql
   /usr/local/studip/cli/migrate.php
   exit 0
 fi
